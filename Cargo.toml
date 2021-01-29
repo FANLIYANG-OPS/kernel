@@ -1,0 +1,57 @@
+[package]
+build = "build.rs"
+edition = "2018"
+name = "kernel"
+version = "0.1.54"
+
+[lib]
+crate-type = ["staticlib"]
+name = "kernel"
+path = "src/lib.rs"
+
+[dependencies]
+bitflags = "1.2.1"
+linked_list_allocator = "0.8.4"
+log = {version = "0.4"}
+paste = "0.1.18"
+redox_syscall = {path = "syscall"}
+rmm = {path = "rmm", default-features = false}
+slab_allocator = {path = "slab_allocator", optional = true}
+spin = "0.5.2"
+
+[dependencies.goblin]
+default-features = false
+features = ["elf32", "elf64"]
+version = "0.2.1"
+
+[dependencies.rustc-demangle]
+default-features = false
+version = "0.1.16"
+
+[target.'cfg(target_arch = "x86_64")'.dependencies]
+raw-cpuid = "8.0.0"
+x86 = {version = "0.32.0", default-features = false}
+
+[features]
+acpi = []
+default = ["acpi", "multi_core", "serial_debug"]
+doc = []
+graphical_debug = []
+live = []
+lpss_debug = []
+multi_core = ["acpi"]
+pti = []
+qemu_debug = []
+serial_debug = []
+slab = ["slab_allocator"]
+system76_ec_debug = []
+
+[profile.dev]
+# Kernel doesn't yet work great with debug mode :(
+opt-level = 3
+
+# LTO fixes some duplicate symbols of memcpy/memmove/etc
+lto = true
+
+[profile.release]
+lto = true
